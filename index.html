@@ -1,0 +1,215 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <script src="https://aframe.io/releases/1.4.0/aframe.min.js"></script>
+    <script src="https://unpkg.com/aframe-event-set-component@3.0.3/dist/aframe-event-set-component.min.js"></script>
+    <script>
+      // Global variables: store food order data
+      var food_prices = [3.50, 1.50, 1.00];
+      var order_total = 0.0;
+      var order_count = 0;
+      
+      // Update the order value label to current total
+      function updateOrderValueLabel() {
+        document.querySelector("#order-price").setAttribute("value", order_total.toFixed(2));
+      }
+
+      // Update the basket with the 3D models of items selected.
+      function updateOrder3DItems(item_id) {
+        var icon_entity = document.createElement("a-entity");
+        var icon_position = (order_count * 0.15)-0.6;
+      
+        icon_entity.setAttribute("mixin","item-icon");
+        icon_entity.setAttribute("position", `${icon_position} -0.05 0.1`);
+        icon_entity.setAttribute("rotation","-10 0 0");
+        icon_entity.setAttribute("gltf-model", item_idModelMap(item_id));
+        icon_entity.setAttribute("scale", "0.75 0.75 0.75");
+        icon_entity.setAttribute("animation", "property: rotation; to: -10 360 0; dur: 6000; easing: linear; loop: true;");
+
+        document.querySelector("#basket").appendChild(icon_entity);
+      }
+
+      // Clear all items from the order
+      function clearOrder() {
+        order_total = 0.0;
+        order_count = 0;
+        updateOrderValueLabel();
+        
+        document.querySelector("#basket").replaceChildren();
+      }
+
+      function item_idModelMap(item_id){
+        switch (item_id) {
+          case "1":
+            return "#model-burger";
+          case "2":
+            return "#model-chips";
+          case "3":
+            return "#model-drink";
+          default:
+            console.error("Invalid item_id:", item_id);
+            return null;
+        }
+        
+          
+      }
+      
+      /*
+       * Component for the 'clear order' button.
+       */
+      AFRAME.registerComponent("clear-button", {
+        // Init gets called just once, when initialised
+        init: function () {
+          var element = this.el;
+          
+          // Cursor enter
+          element.addEventListener("mouseenter", function () {
+            
+          });
+
+          // Cursor leave
+          element.addEventListener("mouseleave", function () {
+            
+          });
+
+          // Cursor click: empty order basket
+          element.addEventListener("click", function () {
+            clearOrder();
+          });
+        },
+        
+        /*
+         * Tick gets called every frame update. We want to create the effect of the clear
+         * button fading-in to become visible only as the user 'looks down' towards it.
+         */
+        tick: function () {
+          var element = this.el;
+          
+          // We need the camera to determine where the user is looking
+          var camera = this.el.sceneEl.camera.el;
+          var rotation = camera.getAttribute("rotation");
+
+          //console.log(Math.round(rotation.x));
+          
+          // Calculate opacity based on downward tilt (rotation around x-axis), with a maximum of 50%
+          var opacity = Math.round(Math.abs(Math.min(0, rotation.x+15)));
+          // Set background opacity - note opacity needs to be converted from % to [0.0, 1.0]
+          element.querySelector("#clear-button-bg").setAttribute("opacity", opacity * 0.10);
+          
+          // Set text opacity - use different scale so it"s brighter, for better readability
+          element.querySelector("#clear-button-fg").setAttribute("opacity", opacity * 0.20);
+        }
+      });
+      
+      /*
+       * Component for food menu item buttons.
+       */
+      AFRAME.registerComponent("menu-button", {
+        schema: {
+          item_id: { default: "0" },
+          started: { default: false },
+          item_price: {default: 0.00},
+        },
+
+        init: function () {
+          var data = this.data;
+          var element = this.el;
+
+          // Cursor enter: start or resume rotation animation, depending on prior animation state
+          element.addEventListener("mouseenter", function () {
+            element.querySelector(".icon").emit("rotation-begin");
+          });
+
+          // Cursor leave: pause rotation animation
+          element.addEventListener("mouseleave", function () {
+            element.querySelector(".icon").emit("rotation-pause");
+          });
+
+          // Cursor hover: resume rotation animation - somehow fixes issue with snapping
+          element.addEventListener("hover", function(){
+            element.querySelector(".icon").emit("rotation-resume")
+          });
+
+          // Cursor click: start the scale animation
+          element.addEventListener("click", function () {
+            order_count++;
+            element.querySelector(".icon").emit("scale-begin");
+            updateOrder3DItems(data.item_id);
+            
+            order_total += data.item_price;
+            document.querySelector('#order-price').setAttribute('value', order_total);
+          });
+        },
+      });
+    </script>
+  </head>
+  <body>
+    <a-scene>
+      <!-- Assets: 3D models and mixin definitions -->
+      <a-assets>
+        <a-asset-item id="model-burger" src="https://cdn.glitch.global/326e3dc1-eeff-4f02-8913-b8b16b58dbfd/burger.gltf?v=1673470710342"></a-asset-item>
+        <a-asset-item id="model-chips" src="https://cdn.glitch.global/326e3dc1-eeff-4f02-8913-b8b16b58dbfd/chips.gltf?v=1673470890597"></a-asset-item>
+        <a-asset-item id="model-drink" src="https://cdn.glitch.global/326e3dc1-eeff-4f02-8913-b8b16b58dbfd/drink.gltf?v=1673471242511"></a-asset-item>
+        
+        <!-- Target sphere surrounding each menu item -->
+        <a-mixin id="item-sphere" button geometry="primitive: sphere;" material="color: white; opacity: 0.1;" scale="0.15 0.15 0.15"
+                 animation__click="property: components.material.material.color; type: color; from: green; to: white; dur: 500; easing: linear; loop: false; startEvents: scale-begin;"></a-mixin>
+        
+        <!-- 3D model icon for menu items -->
+        <a-mixin id="item-icon" scale="5 5 5"
+                 animation__hover="property: rotation; to: 0 360 0; dur: 4000; easing: linear; loop: true; startEvents: rotation-begin; pauseEvents: rotation-pause; resumeEvents: rotation-resume;"
+                 animation__click="property: scale; from: 3 3 3; to: 5 5 5; dur: 500; easing: linear; loop: false; startEvents: scale-begin;"></a-mixin>
+        
+        <!-- Text label for menu items -->
+        <a-mixin id="item-label" geometry="primitive: plane;" material="opacity: 0.0;" scale="1.5 1.5 1.5" text="align: center; anchor: center; baseline: center; color: white; wrap-count: 10;"></a-mixin>
+      </a-assets>
+
+      <!-- Sky fills the background with a solid colour -->
+      <a-sky color="#518CC9"></a-sky>
+
+      <!-- Create cursor with animated visual feedback -->
+      <a-entity camera look-controls wasd-controls position="0 1.6 0">
+        <a-entity cursor="fuse: true; fuseTimeout: 800" raycaster="objects: .selectable"
+                  material="color: white; shader: flat; opacity: 0.8;" position="0 0 -0.1"
+                  geometry="primitive: ring; radiusInner: 0.002; radiusOuter: 0.004"
+                  animation__click="property: scale; startEvents: click; easing: easeInCubic; dur: 500; from: 0.2 0.2 0.2; to: 1 1 1"
+                  animation__fusing="property: scale; startEvents: fusing; easing: easeInCubic; dur: 800; from: 1 1 1; to: 0.2 0.2 0.2"
+                  animation__mouseleave="property: scale; startEvents: mouseleave; easing: easeInCubic; dur: 100; to: 1 1 1">
+        </a-entity>
+      </a-entity>
+
+      <!-- Basket -->
+      <a-text value="Your Order" position="-0.49 1.14 -1.49" scale="0.2 0.2" align="left"></a-text>
+      <a-text id="order-price" value="0.00" position="0.49 1.14 -1.49" scale="0.2 0.2" align="right"></a-text>
+      <a-plane id="basket" color="black" opacity="0.2" width="1.0" height="0.2" position="0 1.0 -1.5"></a-plane>
+      
+      <!-- Clear order -->
+      <a-entity clear-button position="0. 0.845 -1.49">
+        <a-plane id="clear-button-bg" class="selectable" color="darkred" width="0.4" height="0.12"></a-plane>
+        <a-text id="clear-button-fg" value="clear" position="0 0 0.01" scale="0.15 0.15" align="center"></a-text>
+      </a-entity>
+      
+      <!-- Group of Menu Items -->
+      <a-entity id="menu-items" position="0 1.6 -1">
+        <!-- Menu item: burger -->
+        <a-sphere menu-button="item_id: 1; item_price: 3.50;" mixin="item-sphere" class="selectable" position="0 0.25 0" rotation="15 0 0">
+          <a-entity mixin="item-icon" class="icon" gltf-model="#model-burger" position="0 -0.2 0" scale="5 5 5"></a-entity>
+          <a-entity mixin="item-label" class="item-label" text="value: Burger 3.50;" position="0 -0.5 0.1"></a-entity>
+        </a-sphere>
+        
+        <!-- Menu item: Drink -->
+        <a-sphere menu-button="item_id: 2; item_price: 1.50;" mixin="item-sphere" class="selectable" position="-0.3 0 0" rotation="0 0 0">
+          <a-entity mixin="item-icon" class="icon" gltf-model="#model-chips" position="0 -0.2 0" scale="5 5 5"></a-entity>
+          <a-entity mixin="item-label" class="item-label" text="value: Chips 1.50;" position="0 -0.5 0.1"></a-entity>
+        </a-sphere>
+        
+        <!-- Menu item: Chips -->
+        <a-sphere menu-button="item_id: 3; item_price:1.00;" mixin="item-sphere" class="selectable" position="0.3 0 0" rotation="0 0 0">
+          <a-entity mixin="item-icon" class="icon" gltf-model="#model-drink" position="0 -0.2 0" scale="4 3.5 4"></a-entity>
+          <a-entity mixin="item-label" class="item-label" text="value: Drink 1.00;" position="0 -0.5 0.1"></a-entity>
+        </a-sphere>
+      </a-entity>
+
+    </a-scene>
+  </body>
+</html>
