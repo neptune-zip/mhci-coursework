@@ -1,8 +1,12 @@
 <!DOCTYPE html>
 <html>
   <head>
-    <script src="https://aframe.io/releases/1.4.0/aframe.min.js"></script>
+    <script src="https://aframe.io/releases/1.6.0/aframe.min.js"></script>
     <script src="https://unpkg.com/aframe-event-set-component@3.0.3/dist/aframe-event-set-component.min.js"></script>
+    
+    <!-- A-Frame Extras, from https://github.com/c-frame/aframe-extras/tree/master/
+         MIT License: https://raw.githubusercontent.com/c-frame/aframe-extras/master/LICENSE-->
+    <script src="https://cdn.jsdelivr.net/gh/c-frame/aframe-extras@7.5.4/dist/aframe-extras.min.js"></script>
     <script>
       // Global variables: store food order data
       var food_prices = [3.50, 1.50, 1.00];
@@ -144,16 +148,17 @@
     </script>
   </head>
   <body>
-    <a-scene>
+    <a-scene vr-mode-ui="enabled: false">
       <!-- Assets: 3D models and mixin definitions -->
       <a-assets>
         <a-asset-item id="model-burger" src="https://cdn.glitch.global/326e3dc1-eeff-4f02-8913-b8b16b58dbfd/burger.gltf?v=1673470710342"></a-asset-item>
         <a-asset-item id="model-chips" src="https://cdn.glitch.global/326e3dc1-eeff-4f02-8913-b8b16b58dbfd/chips.gltf?v=1673470890597"></a-asset-item>
         <a-asset-item id="model-drink" src="https://cdn.glitch.global/326e3dc1-eeff-4f02-8913-b8b16b58dbfd/drink.gltf?v=1673471242511"></a-asset-item>
+        <a-asset-item id="model-joystick" src="https://cdn.glitch.global/22b73fa8-86a5-4497-92ef-441434fd6ff2/joystick.glb?v=1739834670124"></a-asset-item>
         
         <!-- Target sphere surrounding each menu item -->
-        <a-mixin id="item-sphere" button geometry="primitive: sphere;" material="color: white; opacity: 0.1;" scale="0.15 0.15 0.15"
-                 animation__click="property: components.material.material.color; type: color; from: green; to: white; dur: 500; easing: linear; loop: false; startEvents: scale-begin;"></a-mixin>
+        <a-mixin id="item-sphere" button geometry="primitive: sphere;" material="color: black; opacity: 0.1;" scale="0.15 0.15 0.15"
+                 animation__click="property: components.material.material.color; type: color; from: green; to: black; dur: 500; easing: linear; loop: false; startEvents: scale-begin;"></a-mixin>
         
         <!-- 3D model icon for menu items -->
         <a-mixin id="item-icon" scale="5 5 5"
@@ -161,24 +166,67 @@
                  animation__click="property: scale; from: 3 3 3; to: 5 5 5; dur: 500; easing: linear; loop: false; startEvents: scale-begin;"></a-mixin>
         
         <!-- Text label for menu items -->
-        <a-mixin id="item-label" geometry="primitive: plane;" material="opacity: 0.0;" scale="1.5 1.5 1.5" text="align: center; anchor: center; baseline: center; color: white; wrap-count: 10;"></a-mixin>
+        <a-mixin id="item-label" geometry="primitive: plane;" material="opacity: 0.0;" scale="1.5 1.5 1.5" text="align: center; anchor: center; baseline: center; color: black; wrap-count: 10;"></a-mixin>
       </a-assets>
 
       <!-- Sky fills the background with a solid colour -->
-      <a-sky color="#518CC9"></a-sky>
+      <a-sky color="#edceff"></a-sky>
+      
 
       <!-- Create cursor with animated visual feedback -->
-      <a-entity camera look-controls wasd-controls position="0 1.6 0">
-        <a-entity cursor="fuse: true; fuseTimeout: 800" raycaster="objects: .selectable"
-                  material="color: white; shader: flat; opacity: 0.8;" position="0 0 -0.1"
+      <a-entity id="rig" nipple-controls="mode: static; moveJoystickEnabled: false">
+      <a-entity camera position="0 1.6 0" look-controls="magicWindowTrackingEnabled: false">
+        <a-entity raycaster="objects: .selectable"
+                  material="color: black; shader: flat; opacity: 0.8;" position="0 0 -0.1"
                   geometry="primitive: ring; radiusInner: 0.002; radiusOuter: 0.004"
                   animation__click="property: scale; startEvents: click; easing: easeInCubic; dur: 500; from: 0.2 0.2 0.2; to: 1 1 1"
                   animation__fusing="property: scale; startEvents: fusing; easing: easeInCubic; dur: 800; from: 1 1 1; to: 0.2 0.2 0.2"
                   animation__mouseleave="property: scale; startEvents: mouseleave; easing: easeInCubic; dur: 100; to: 1 1 1">
         </a-entity>
+        <a-entity position="0 0 0" rotation="-29">
+          <a-circle id="stick-bg" color="black" radius="0.0175" position="0 0 -0.1">
+            <a-triangle class="stick-arrow" 
+                        color="white" 
+                        vertex-a="0 0.015 0.01" 
+                        vertex-b="-0.002 0.012 0.01" 
+                        vertex-c="0.002 0.012 0.01"
+                        >
+            </a-triangle>
+            <a-triangle class="stick-arrow" 
+                        color="white" 
+                        vertex-a="0 0.015 0.01" 
+                        vertex-b="-0.002 0.012 0.01" 
+                        vertex-c="0.002 0.012 0.01"
+                        rotation="0 0 -90">
+            </a-triangle>
+            <a-triangle class="stick-arrow" 
+                        color="white" 
+                        vertex-a="0 0.015 0.01" 
+                        vertex-b="-0.002 0.012 0.01" 
+                        vertex-c="0.002 0.012 0.01"
+                        rotation="0 0 90">
+            </a-triangle>
+            <a-triangle class="stick-arrow" 
+                        color="white" 
+                        vertex-a="0 0.015 0.01" 
+                        vertex-b="-0.002 0.012 0.01" 
+                        vertex-c="0.002 0.012 0.01"
+                        rotation="0 0 90">
+            </a-triangle>
+            <a-triangle class="stick-arrow" 
+                        color="white" 
+                        vertex-a="0 0.015 0.01" 
+                        vertex-b="-0.002 0.012 0.01" 
+                        vertex-c="0.002 0.012 0.01"
+                        rotation="0 0 180">
+            </a-triangle>
+            <a-entity class="icon" gltf-model="#model-joystick" position="0 0 0" rotation="90" scale="0.01 0.01 0.01"></a-entity>
+          </a-circle>
+        </a-entity>
+        </a-entity> 
       </a-entity>
 
-      <!-- Basket -->
+      <!-- Basket 
       <a-text value="Your Order" position="-0.49 1.14 -1.49" scale="0.2 0.2" align="left"></a-text>
       <a-text id="order-price" value="0.00" position="0.49 1.14 -1.49" scale="0.2 0.2" align="right"></a-text>
       <a-plane id="basket" color="black" opacity="0.2" width="1.0" height="0.2" position="0 1.0 -1.5"></a-plane>
@@ -209,7 +257,6 @@
           <a-entity mixin="item-label" class="item-label" text="value: Drink 1.00;" position="0 -0.5 0.1"></a-entity>
         </a-sphere>
       </a-entity>
-
     </a-scene>
   </body>
 </html>
