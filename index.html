@@ -58,6 +58,12 @@
           
       }
       
+      function degreesToRadians(degrees){
+        result = degrees * Math.PI/180;
+        console.log(result);
+        return result;
+      }
+      
       /*
        * Component for the 'clear order' button.
        */
@@ -145,6 +151,72 @@
           });
         },
       });
+      
+      AFRAME.registerComponent("control-stick", {
+        schema: {
+          //pos_x: { default: "0" },
+          //pos_y: { default: "0" },
+          speed: { default: 1 }
+        },
+
+        init : function(){
+          this.ifTouchDown = false;
+          this.x_coord = 0;
+          this.y_coord = 0;
+          this.defaultRotation = this.el.object3D.rotation.clone();
+          console.log(this.defaultRotation);
+          
+          this.el.sceneEl.canvas.addEventListener('touchstart',this.onTouchStart.bind(this));
+          this.el.sceneEl.canvas.addEventListener('touchend',this.onTouchEnd.bind(this));
+          this.el.sceneEl.canvas.addEventListener('touchmove',this.onTouchMove.bind(this));
+          
+          
+          
+        },
+        
+        onTouchStart: function(event){
+          console.log("TOUCH START: X: " + event.touches[0].pageX + " Y: " + event.touches[0].pageY);
+          this.ifTouchDown = true;
+          this.x_coord = event.touches[0].pageX;
+          this.y_coord = event.touches[0].pageY;
+        },
+          
+        
+        onTouchEnd: function(event){
+          this.ifTouchDown = false;
+          // this.el.object3D.rotateZ(-this.x_coord);
+          // this.el.object3D.rotateX(-this.y_coord);
+          
+          //this.el.object3D.lookAt(this.defaultRotation)
+          this.el.object3D.setRotationFromEuler(this.defaultRotation);
+        },
+        
+        onTouchMove: function(event){
+          if(this.ifTouchDown){
+            var temp_x = event.touches[0].pageX-this.x_coord;
+            var temp_y = event.touches[0].pageY-this.y_coord;
+            console.log("Moving Touches: X:" + temp_x + " Y: " + temp_y)
+              if(Math.abs(temp_y)<Math.abs(temp_x)){
+                if (temp_x<0){
+                  this.el.object3D.rotateZ(degreesToRadians(5));
+                }
+                else{
+                  this.el.object3D.rotateZ(degreesToRadians(-5));
+                }
+              }
+              else{
+                if (temp_y<0){
+                  this.el.object3D.rotateX(degreesToRadians(-5));
+                }
+                else {
+                  this.el.object3D.rotateX(degreesToRadians(5));
+                }
+              }
+              this.x_cord = event.touches[0].pageX;
+              this.y_cord = event.touches[0].pageY;
+            }
+        }
+      });
     </script>
   </head>
   <body>
@@ -174,8 +246,8 @@
       
 
       <!-- Create cursor with animated visual feedback -->
-      <a-entity id="rig" nipple-controls="mode: static; moveJoystickEnabled: false">
-      <a-entity camera position="0 1.6 0" look-controls="magicWindowTrackingEnabled: false">
+      <a-entity id="rig" nipple-controls="moveJoystickEnabled: false">
+      <a-entity camera position="0 1.6 0" look-controls="magicWindowTrackingEnabled: false; mouseEnabled: false; touchEnabled: false">
         <a-entity raycaster="objects: .selectable"
                   material="color: black; shader: flat; opacity: 0.8;" position="0 0 -0.1"
                   geometry="primitive: ring; radiusInner: 0.002; radiusOuter: 0.004"
@@ -183,7 +255,7 @@
                   animation__fusing="property: scale; startEvents: fusing; easing: easeInCubic; dur: 800; from: 1 1 1; to: 0.2 0.2 0.2"
                   animation__mouseleave="property: scale; startEvents: mouseleave; easing: easeInCubic; dur: 100; to: 1 1 1">
         </a-entity>
-        <a-entity position="0 0 0" rotation="-29">
+        <a-entity position="0 0 0" rotation="-30">
           <a-circle id="stick-bg" color="black" radius="0.0175" position="0 0 -0.1">
             <a-triangle class="stick-arrow" 
                         color="white" 
@@ -220,7 +292,13 @@
                         vertex-c="0.002 0.012 0.01"
                         rotation="0 0 180">
             </a-triangle>
-            <a-entity class="icon" gltf-model="#model-joystick" position="0 0 0" rotation="90" scale="0.01 0.01 0.01"></a-entity>
+            <a-entity 
+                      control-stick
+                      gltf-model="#model-joystick" 
+                      position="0 0 0" 
+                      rotation="90" 
+                      scale="0.01 0.01 0.01">
+            </a-entity>
           </a-circle>
         </a-entity>
         </a-entity> 
