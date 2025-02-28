@@ -3,6 +3,7 @@
   <head>
     <script src="https://aframe.io/releases/1.6.0/aframe.min.js"></script>
     <script src="https://unpkg.com/aframe-event-set-component@3.0.3/dist/aframe-event-set-component.min.js"></script>
+    <script scr="https://hammerjs.github.io/dist/hammer.js"></script>
     
     <!-- A-Frame Extras, from https://github.com/c-frame/aframe-extras/tree/master/
          MIT License: https://raw.githubusercontent.com/c-frame/aframe-extras/master/LICENSE-->
@@ -62,6 +63,26 @@
         result = degrees * Math.PI/180;
         console.log(result);
         return result;
+      }
+      
+      window.onload = function onLoad() {
+        console.log("HELLO");
+        touchArea = document.querySelector("#control-stick");
+        touchArea.setAttribute("rotation","0 0 0");
+
+        gestureDeltaX = document.getElementById("ges_delta_x");
+        gestureDeltaY = document.getElementById("ges_delta_y");
+        gestureDistance = document.getElementById("ges_distance");
+
+        hammer = new Hammer.Manager(touchArea, {
+        recognizers: [
+            [Hammer.Pan, {direction: Hammer.DIRECTION_ALL}]
+        ]
+        });
+
+        //hammer = new Hammer(touchArea)
+
+        hammer.on("pan", onSwipe);
       }
       
       /*
@@ -154,69 +175,54 @@
       
       AFRAME.registerComponent("control-stick", {
         schema: {
-          //pos_x: { default: "0" },
-          //pos_y: { default: "0" },
-          speed: { default: 1 }
+          
         },
 
         init : function(){
-          this.ifTouchDown = false;
-          this.x_coord = 0;
-          this.y_coord = 0;
-          this.defaultRotation = this.el.object3D.rotation.clone();
-          console.log(this.defaultRotation);
+          //touchArea = document.getElementById("control-stick");
+          //touchArea.style.height = window.innerHeight * 0.5 + "px";
           
-          this.el.sceneEl.canvas.addEventListener('touchstart',this.onTouchStart.bind(this));
-          this.el.sceneEl.canvas.addEventListener('touchend',this.onTouchEnd.bind(this));
-          this.el.sceneEl.canvas.addEventListener('touchmove',this.onTouchMove.bind(this));
+          console.log("HELLO");
+          touchArea = document.querySelector("#control-stick");
+          touchArea.setAttribute("rotation","0 0 0");
+
+          gestureDeltaX = document.getElementById("ges_delta_x");
+          gestureDeltaY = document.getElementById("ges_delta_y");
+          gestureDistance = document.getElementById("ges_distance");
+
+          hammer = new Hammer.Manager(touchArea, {
+          recognizers: [
+              [Hammer.Pan, {direction: Hammer.DIRECTION_ALL}]
+          ]
+          });
           
-          
+          //hammer = new Hammer(touchArea)
+
+          hammer.on("pan", onSwipe);
           
         },
         
-        onTouchStart: function(event){
-          console.log("TOUCH START: X: " + event.touches[0].pageX + " Y: " + event.touches[0].pageY);
-          this.ifTouchDown = true;
-          this.x_coord = event.touches[0].pageX;
-          this.y_coord = event.touches[0].pageY;
-        },
-          
+      }
+    });
+      
+      function onSwipe(e) {
+        console.log("SWIPEEEEE");
+        gestureDeltaX.textContent = e.deltaX;
+        gestureDeltaY.textContent = e.deltaY;
+        gestureDistance.textContent = roundNumber(e.distance);
+        gestureDuration.textContent = e.deltaTime;
+
+        /*
+         * Add your decision tree code here.
+         *
+         * Use the following functions for visual feedback:
+         *
+         * swipeUp(); swipeDown(); swipeLeft();
+         * swipeRight(); unrecognised();
+         */
         
-        onTouchEnd: function(event){
-          this.ifTouchDown = false;
-          // this.el.object3D.rotateZ(-this.x_coord);
-          // this.el.object3D.rotateX(-this.y_coord);
-          
-          //this.el.object3D.lookAt(this.defaultRotation)
-          this.el.object3D.setRotationFromEuler(this.defaultRotation);
-        },
-        
-        onTouchMove: function(event){
-          if(this.ifTouchDown){
-            var temp_x = event.touches[0].pageX-this.x_coord;
-            var temp_y = event.touches[0].pageY-this.y_coord;
-            console.log("Moving Touches: X:" + temp_x + " Y: " + temp_y)
-              if(Math.abs(temp_y)<Math.abs(temp_x)){
-                if (temp_x<0){
-                  this.el.object3D.rotateZ(degreesToRadians(5));
-                }
-                else{
-                  this.el.object3D.rotateZ(degreesToRadians(-5));
-                }
-              }
-              else{
-                if (temp_y<0){
-                  this.el.object3D.rotateX(degreesToRadians(-5));
-                }
-                else {
-                  this.el.object3D.rotateX(degreesToRadians(5));
-                }
-              }
-              this.x_cord = event.touches[0].pageX;
-              this.y_cord = event.touches[0].pageY;
-            }
-        }
-      });
+        dtDeltaX = Math.abs(e.deltaX);
+        dtDeltaY = Math.abs(e.deltaY);
     </script>
   </head>
   <body>
@@ -246,7 +252,7 @@
       
 
       <!-- Create cursor with animated visual feedback -->
-      <a-entity id="rig" nipple-controls="moveJoystickEnabled: false">
+      <a-entity id="rig">
       <a-entity camera position="0 1.6 0" look-controls="magicWindowTrackingEnabled: false; mouseEnabled: false; touchEnabled: false">
         <a-entity raycaster="objects: .selectable"
                   material="color: black; shader: flat; opacity: 0.8;" position="0 0 -0.1"
@@ -294,6 +300,7 @@
             </a-triangle>
             <a-entity 
                       control-stick
+                      id="control-stick"
                       gltf-model="#model-joystick" 
                       position="0 0 0" 
                       rotation="90" 
@@ -335,6 +342,20 @@
           <a-entity mixin="item-label" class="item-label" text="value: Drink 1.00;" position="0 -0.5 0.1"></a-entity>
         </a-sphere>
       </a-entity>
+      
+      <a-plane height="0.3" width="0.5" color="black" position="0 1.6 -0.5">
+        <a-text id="ges_delta_x" value="0" height="0.1" position="0 0.1" align="center" scale="0.2 0.2"></a-text>
+        <a-text id="ges_delta_y" value="0" height="0.1" position="0.1 0" align="center" scale="0.2 0.2"></a-text>
+        <a-text id="ges_distance" value="0" height="0.1" position="0 -0.1" align="center" scale="0.2 0.2"></a-text>
+      </a-plane>
     </a-scene>
+
+<!--     <div id="panel">Swipe</div>
+    <ul>
+      <li>Δx: <span id="ges_delta_x">0</span></li>
+      <li>Δy: <span id="ges_delta_y">0</span></li>
+      <li>Distance: <span id="ges_distance">0</span></li>
+      <li>Duration: <span id="ges_duration">0</span></li>
+    </ul> -->
   </body>
 </html>
