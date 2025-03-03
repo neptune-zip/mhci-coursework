@@ -1,7 +1,11 @@
+import "./App.css";
 import { useState } from "react";
 import Alert from "./components/Alert";
 import Button from "./components/Button";
 import ListGroup from "./components/ListGroup";
+import { Joystick } from "react-joystick-component";
+import JoystickAndCursor from "./components/JoystickAndCursor";
+
 function App() {
   const items = ["New York", "San Francisco", "Tokyo", "London", "Paris"];
 
@@ -28,6 +32,7 @@ function App() {
         heading="Cities"
         onSelectItem={handleSelectItem}
       />
+      <JoystickAndCursor></JoystickAndCursor>
     </div>
   );
 }
