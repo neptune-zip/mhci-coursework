@@ -1,5 +1,3 @@
-import { useState } from "react";
-
 interface CursorProps {
   position: { x: number; y: number };
 }
@@ -15,8 +13,8 @@ const Cursor = ({ position }: CursorProps) => {
           height: "10%",
           width: "20%",
           position: "absolute",
-          left: position.x + "%",
-          bottom: position.y + "%",
+          left: position.x,
+          top: position.y,
           transform: "translate(-50%, -50%)",
         }}
       ></img>
