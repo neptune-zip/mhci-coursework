@@ -3,15 +3,22 @@ interface MessageBoxProps {
   hoveredButtonId?: string;
 }
 
-const messages = {
-  mb1: "This is some text for my button 1!",
-  mb2: "This is some text for my 2nd button!",
-};
 const MessageBox = ({
   children = "No message",
   hoveredButtonId,
 }: MessageBoxProps) => {
-  console.log(hoveredButtonId);
+
+  let message;
+
+  switch(hoveredButtonId){
+    case "mb1":
+      message = "This is some text for my button 1";
+      break;
+    case "mb2":
+      message = "This is some text for my button 2"
+      break;
+  }
+
   return (
     <div
       style={{
@@ -26,8 +33,7 @@ const MessageBox = ({
     >
       <p style={{ margin: "10%" }}>
         {
-          //@ts-ignore
-          hoveredButtonId ? messages[hoveredButtonId] : children
+          message ? message : children
         }
       </p>
     </div>

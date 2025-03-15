@@ -77,10 +77,10 @@ function App() {
         My 2nd Button
       </Button>
 
-      {confirmButtonMessageBoxVisible &&
-      <MessageBox></MessageBox>
-      }
-      
+      {confirmButtonMessageBoxVisible && (
+        <MessageBox hoveredButtonId={hoveredButtonId.current}></MessageBox>
+      )}
+
       {confirmButtonMessageBoxVisible && (
         <div className="confirmButtonWrapper">
           <Button
