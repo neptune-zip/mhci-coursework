@@ -12,9 +12,12 @@ interface ButtonProps {
     | "dark"
     | "link";
   onClick?: () => void;
-  onInit?: (positionSizeInfo: {
+  onInit?: (buttonIdPositionSize: {
     id: string;
-    values: { x: number; y: number; width: number; height: number };
+    x: number;
+    y: number;
+    width: number;
+    height: number;
   }) => void;
 }
 
@@ -30,22 +33,20 @@ function Button({
       <button
         ref={(el) => {
           if (!el || !onInit) return;
-          const pSI = el.getBoundingClientRect();
+          const positionAndSizeInfo = el.getBoundingClientRect();
           onInit({
             id: id,
-            values: {
-              x: pSI.x,
-              y: pSI.y,
-              width: pSI.width,
-              height: pSI.height,
-            },
+            x: positionAndSizeInfo.x,
+            y: positionAndSizeInfo.y,
+            width: positionAndSizeInfo.width,
+            height: positionAndSizeInfo.height,
           });
         }}
         id={id}
         type="button"
         className={"btn btn-" + colour}
         onClick={onClick}
-        style={{ margin: "20px", padding: "10%" }}
+        style={{ margin: "20px" }}
       >
         {children}
       </button>

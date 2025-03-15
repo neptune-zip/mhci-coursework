@@ -1,5 +1,6 @@
 import { IJoystickUpdateEvent } from "react-joystick-component/build/lib/Joystick";
 import Cursor from "./Cursor";
+import Button from "./Button";
 import "./styles/JoystickAndCursor.css";
 import { Joystick } from "react-joystick-component";
 import { useEffect, useState } from "react";
@@ -17,11 +18,6 @@ const JoystickAndCursor = ({
   const vpHeight = window.innerHeight;
 
   const [[posX, posY], setPosition] = useState([vpWidth / 2, vpHeight / 2]);
-  // const [started, setStarted] = useState(false);
-
-  // const onStart = () => {
-  //   setStarted(true);
-  // };
 
   const onMove = (stick: IJoystickUpdateEvent) => {
     // Cast as number to remove problems associated with number | null type.
@@ -54,10 +50,6 @@ const JoystickAndCursor = ({
     }
   };
 
-  // const onStop = () => {
-  //   setStarted(false);
-  // };
-
   useEffect(() => {
     onCursorMove({ x: posX, y: posY });
   }, [posX, posY]);
@@ -68,8 +60,8 @@ const JoystickAndCursor = ({
         <Joystick
           size={150}
           move={onMove}
-          // start={onStart}
-          // stop={onStop}
+          baseImage="/arrows_only.png"
+          stickImage="/finger_only.png"
         ></Joystick>
       </div>
       <Cursor position={{ x: posX, y: posY }} />

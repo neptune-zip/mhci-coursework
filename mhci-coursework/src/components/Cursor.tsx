@@ -10,8 +10,8 @@ const Cursor = ({ position }: CursorProps) => {
         src="/Cursor_for_android.png"
         alt="Cursor Pointer"
         style={{
-          height: "10%",
-          width: "20%",
+          height: "80px",
+          width: "70px",
           position: "absolute",
           left: position.x,
           top: position.y,
