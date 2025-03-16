@@ -7,7 +7,7 @@ const Cursor = ({ position }: CursorProps) => {
     <div>
       <img
         className="cursor-image"
-        src="/Cursor_for_android.png"
+        src="/Cursor_for_android.png" //https://commons.wikimedia.org/wiki/File:Cursor_for_android.png
         alt="Cursor Pointer"
         style={{
           height: "80px",

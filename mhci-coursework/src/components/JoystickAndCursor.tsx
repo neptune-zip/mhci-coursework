@@ -72,20 +72,11 @@ JoystickAndCursorProps) => {
   }, [posX, posY]);
 
   const handleJoystickClick = () => {
-    //console.log("click'd");
-    console.log(
-      posX,
-      // stickX.current,
-      posY
-      // stickY.current
-    );
     setCursorPositionWithinBounds();
     animationFrameId.current = requestAnimationFrame(handleJoystickClick);
   };
 
   const handleJoystickClickEnd = () => {
-    console.log("not click'd");
-    //stickClick.current = false;
     cancelAnimationFrame(animationFrameId.current);
   };
 

@@ -19,6 +19,8 @@ interface ButtonProps {
     width: number;
     height: number;
   }) => void;
+  height?: string;
+  width?: string;
 }
 
 function Button({
@@ -27,7 +29,18 @@ function Button({
   colour = "primary",
   onClick,
   onInit,
+  height,
+  width,
 }: ButtonProps) {
+  // https://stackoverflow.com/questions/12710905/how-do-i-dynamically-assign-properties-to-an-object-in-typescript
+  interface LooseObject {
+    [key: string]: any;
+  }
+
+  let styleBuilder: LooseObject = { margin: "5px" };
+  width ? (styleBuilder.width = width) : null;
+  height ? (styleBuilder.height = height) : null;
+
   return (
     <div>
       <button
@@ -46,7 +59,7 @@ function Button({
         type="button"
         className={"btn btn-" + colour}
         onClick={onClick}
-        style={{ margin: "20px" }}
+        style={styleBuilder}
       >
         {children}
       </button>
