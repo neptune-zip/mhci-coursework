@@ -1,0 +1,23 @@
+.confirmButtonWrapper{
+    position: absolute;
+    bottom: 65px;
+    left: 15%;
+    transform: translate(-50%);
+}
+
+.messageBoxWrapper{
+    background-color: lightgray;
+    position: absolute;
+    border-radius: 10px;
+    bottom: 210px;
+    left: 50%;
+    transform: translate(-50%);
+    width: 80%;
+}
+
+/* .body{
+    background-image: linear-gradient(rgba(0, 0, 0, 0.5), rgba(0, 0, 0, 0.5)),url(/Margwiki.jpg); /*https://commons.wikimedia.org/wiki/Category:Pizzas#/media/File:Margwiki.jpg
+    background-position: center;
+    background-size: cover;
+    background-repeat: no-repeat;
+} */
