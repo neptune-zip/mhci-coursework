@@ -44,7 +44,7 @@ function App() {
   const handleConfirmButtonClick = () => {
     let hoveredElement = document.getElementById(hoveredButtonId.current);
     hoveredElement?.addEventListener("click", () => {
-      hoveredElement.animate(buttonClickFlash, buttonClickFlashTiming);
+      hoveredElement?.animate(buttonClickFlash, buttonClickFlashTiming);
     });
     hoveredElement?.click();
   };
