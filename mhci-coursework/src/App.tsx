@@ -6,6 +6,10 @@ import JoystickAndCursor from "./components/JoystickAndCursor";
 import MessageBox from "./components/MessageBox";
 
 function App() {
+  const startTime = new Date().getTime();
+  let additions = useRef(0);
+  let removals = useRef(0);
+
   const buttons: {
     id: string;
     x: number;
@@ -47,6 +51,7 @@ function App() {
       hoveredElement?.animate(buttonClickFlash, buttonClickFlashTiming);
     });
     hoveredElement?.click();
+    additions.current = additions.current + 1;
   };
 
   const handleCursorMove = (position: { x: number; y: number }) => {
@@ -96,6 +101,7 @@ function App() {
     document
       .getElementById("removeButton")
       ?.animate(buttonClickFlash, buttonClickFlashTiming);
+    removals.current = removals.current + 1;
   };
 
   return (
@@ -255,8 +261,15 @@ function App() {
             id="placeButton"
             colour="success"
             onClick={() => {
+              const now = new Date().getTime();
               alert(
-                "Thank you for placing your pizza order!! Please now return to the survey to evaluate your experience."
+                "Thank you for placing your pizza order!! Please now record the outcomes of your interaction and return to the survey to evaluate your experience. Your interaction time was " +
+                  (now - startTime) +
+                  "ms. You added " +
+                  additions.current +
+                  " toppings and removed " +
+                  removals.current +
+                  " toppings."
               );
               window.location.reload();
             }}
