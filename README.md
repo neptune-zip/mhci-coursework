@@ -10,4 +10,4 @@ This project uses react to implement a control stick to move a cursor over butto
 
 ## Running the code
 
-Please use `npm install` to download dependencies. NodeJS is required. Run the development server using  `npx vite --host`.
+Please cd into the mhci-coursework folder and use `npm install` to download dependencies. NodeJS is required. Run the development server using  `npx vite --host`.
